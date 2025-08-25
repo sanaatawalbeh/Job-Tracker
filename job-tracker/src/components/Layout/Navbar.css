@@ -1,0 +1,49 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 90px;
+  padding: 10px 30px;
+  background-color: #fbfdfdff;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* يبدأ كل شيء من اليسار */
+  gap: 65%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+}
+
+.navbar h2 {
+  color: #3b82f6;
+  margin: 0;
+  font-size: 33px;
+  font-weight: bolder;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 25px;
+}
+.navbar-links a {
+  color: #000000;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 500;
+  padding: 8px 10px;
+  border-radius: 18px;
+  transition: all 0.2s;
+  position: relative;
+  display: inline-block;
+}
+
+.navbar-links a:hover {
+  background-color: #3b82f6;
+  color: #ffffff;
+  padding: 8px 20px;
+}
+
+.navbar-links a.active {
+  background-color: #3b82f6;
+  color: #ffffff;
+  padding: 8px 20px;
+}
