@@ -27,12 +27,12 @@ JobTracker is a job application management app that allows users to register, cr
 ### Challenges & Learning
 
 **Time Spent:**  
-The project took approximately **4  - 4 and half days** in total, including design, development, and testing of all features.
+The project took approximately **4 - 4 and half days** in total, including design, development, and testing of all features.
 
 **Biggest Challenge:**  
-The most challenging part was **handling offline state with Redux**.  
+The most challenging part was **handling offline state with Redux**.
 
-- Ensuring that applications remain accessible when the internet connection is lost.  
-- Making sure offline data does not overwrite Firestore data accidentally.  
+- Ensuring that applications remain accessible when the internet connection is lost.
+- Making sure offline data does not overwrite Firestore data accidentally.
 - Separating the displayed state from the actual database data to avoid conflicts.  
-This required careful state management and planning of Redux logic.
+  This required careful state management and planning of Redux logic.
