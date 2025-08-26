@@ -34,7 +34,6 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    // ✅ تحقق من تطابق كلمة المرور
     if (password !== confirmPassword) {
       Swal.fire({
         icon: "error",

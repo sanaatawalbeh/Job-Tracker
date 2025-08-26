@@ -11,13 +11,30 @@ import {
   ListItemButton,
   ListItemText,
   Typography,
+  IconButton,
+  AppBar,
+  Toolbar,
+  ListItemIcon,
 } from "@mui/material";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import MenuIcon from "@mui/icons-material/Menu";
+import PersonIcon from "@mui/icons-material/Person";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const currentPath = window.location.hash.replace("#", "");
+
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
   const handleLogout = async () => {
     const result = await Swal.fire({
@@ -36,9 +53,9 @@ export default function Dashboard() {
   };
 
   const navItems = [
-    { label: "My Profile", path: "profile" },
-    { label: "Create Application", path: "createapp" },
-    { label: "Applications List", path: "applications" },
+    { label: "My Profile", path: "profile", icon: <PersonIcon /> },
+    { label: "Create Application", path: "createapp", icon: <AddCircleIcon /> },
+    { label: "Applications List", path: "applications", icon: <ListAltIcon /> },
   ];
 
   // 🔹 Fetch applications once when dashboard loads
@@ -72,96 +89,154 @@ export default function Dashboard() {
     fetchApplications();
   }, []);
 
-  return (
-    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f8fafc" }}>
-      {/* Sidebar */}
-      <Drawer
-        variant="permanent"
+  // 🔹 محتوى الدروار
+  const drawerContent = (
+    <Box
+      sx={{
+        width: 350,
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        p: 2,
+        bgcolor: "#3b82f6",
+        color: "#fff",
+      }}
+    >
+      <Typography
+        variant="h5"
+        fontWeight={700}
+        sx={{ mb: 4, textAlign: "start" }}
+      >
+        JobTracker
+      </Typography>
+
+      <List sx={{ flexGrow: 1 }}>
+        {navItems.map((item) => (
+          <ListItem key={item.path} disablePadding>
+            <NavLink
+              to={item.path}
+              style={{
+                textDecoration: "none",
+                color: "#fff",
+                width: "100%",
+              }}
+              onClick={() => setMobileOpen(false)}
+            >
+              <ListItemButton
+                sx={{
+                  borderRadius: "12px",
+                  mx: 1,
+                  mb: 1,
+                  transition: "all 0.3s",
+                  backgroundColor:
+                    currentPath === `/dashboard/${item.path}`
+                      ? "rgba(255,255,255,0.15)"
+                      : "transparent",
+                  "&:hover": {
+                    transform: "scale(1.05)",
+                    backgroundColor: "rgba(255,255,255,0.15)",
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ color: "white" }}>{item.icon}</ListItemIcon>
+                <ListItemText
+                  primary={item.label}
+                  primaryTypographyProps={{
+                    fontWeight: "600",
+                    fontSize: "16px",
+                  }}
+                />
+              </ListItemButton>
+            </NavLink>
+          </ListItem>
+        ))}
+      </List>
+
+      <Button
+        variant="contained"
+        onClick={handleLogout}
+        startIcon={<LogoutIcon />}
         sx={{
-          width: 280,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: 280,
-            boxSizing: "border-box",
-            bgcolor: "#3b82f6",
-            color: "#fff",
-            display: "flex",
-            flexDirection: "column",
-            p: 2,
+          mt: "auto",
+          borderRadius: "12px",
+          py: 1.5,
+          px: 3,
+          fontSize: "16px",
+          fontWeight: 600,
+          bgcolor: "#3b82f6",
+          alignSelf: "flex-start", // 👈 يزبطه عاليسار
+          ml: 2, // 👈 مسافة من الطرف
+          "&:hover": {
+            bgcolor: "#2563eb",
+            transform: "scale(1.05)",
           },
         }}
       >
-        <Typography
-          variant="h5"
-          fontWeight={700}
-          sx={{ mb: 4, textAlign: "start" }}
-        >
-          JobTracker
-        </Typography>
+        Logout
+      </Button>
+    </Box>
+  );
 
-        <List sx={{ flexGrow: 1 }}>
-          {navItems.map((item) => (
-            <ListItem key={item.path} disablePadding>
-              <NavLink
-                to={item.path}
-                style={({ isActive }) => ({
-                  textDecoration: "none",
-                  color: "#fff",
-                  width: "100%",
-                })}
-              >
-                {({ isActive }) => (
-                  <ListItemButton
-                    sx={{
-                      borderRadius: "12px",
-                      mx: 1,
-                      mb: 1,
-                      transition: "all 0.3s",
-                      backgroundColor: isActive
-                        ? "rgba(255,255,255,0.15)"
-                        : "transparent",
-                      "&:hover": {
-                        transform: "scale(1.05)",
-                        backgroundColor: "rgba(255,255,255,0.15)",
-                      },
-                    }}
-                  >
-                    <ListItemText
-                      primary={item.label}
-                      primaryTypographyProps={{
-                        fontWeight: "600",
-                        fontSize: "16px",
-                      }}
-                    />
-                  </ListItemButton>
-                )}
-              </NavLink>
-            </ListItem>
-          ))}
-        </List>
+  return (
+    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f8fafc" }}>
+      {/* 🔹 AppBar يظهر فقط على الشاشات الصغيرة */}
+      <AppBar
+        position="fixed"
+        sx={{
+          bgcolor: "#3b82f6",
+          display: { xs: "block", sm: "none" },
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div">
+            JobTracker Dashboard
+          </Typography>
+        </Toolbar>
+      </AppBar>
 
-        <Button
-          variant="contained"
-          onClick={handleLogout}
-          sx={{
-            mt: "auto",
-            borderRadius: "12px",
-            py: 1.5,
-            fontSize: "16px",
-            fontWeight: 600,
-            bgcolor: "#3b82f6",
-            "&:hover": {
-              bgcolor: "#2563eb",
-              transform: "scale(1.05)",
-            },
-          }}
-        >
-          Logout
-        </Button>
+      {/* 🔹 Drawer للموبايل */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: "block", sm: "none" },
+          "& .MuiDrawer-paper": { boxSizing: "border-box", width: 280 },
+        }}
+      >
+        {drawerContent}
       </Drawer>
 
-      {/* Content */}
-      <Box sx={{ flexGrow: 1, p: 4 }}>
+      {/* 🔹 Drawer ثابت للشاشات الكبيرة */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          display: { xs: "none", sm: "block" },
+          "& .MuiDrawer-paper": { boxSizing: "border-box", width: 325 },
+        }}
+        open
+      >
+        {drawerContent}
+      </Drawer>
+
+      {/* 🔹 محتوى الصفحة */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 4,
+          mt: { xs: 7, sm: 0 },
+        }}
+      >
         <Outlet context={{ applications, setApplications, loading }} />
       </Box>
     </Box>
