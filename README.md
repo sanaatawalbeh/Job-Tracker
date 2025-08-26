@@ -1,4 +1,4 @@
-# Job-Tracker# Job Application Tracker
+# Job-Tracker : Job Application Tracker
 
 A web application built with **React**, **Firebase**, **Redux Toolkit**, and **Material UI** that allows users to track their job applications and enables administrators to manage all submitted applications.
 
@@ -33,7 +33,7 @@ A web application built with **React**, **Firebase**, **Redux Toolkit**, and **M
 
 ### Challenges & Learning
 
-**⏱Time Spent:**  
+**Time Spent:**  
 The project took approximately **10–12 hours** in total, including design, development, and testing of all features.
 
 **Biggest Challenge:**  
