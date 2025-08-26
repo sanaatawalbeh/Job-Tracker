@@ -30,10 +30,7 @@ export default function AdminDashboard() {
     const fetchApplications = async () => {
       try {
         const appsSnapshot = await getDocs(collection(db, "applications"));
-        const appsData = appsSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const appsData = appsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
         // جلب كل المستخدمين لربط الـ uid بالإيميل
         const usersSnapshot = await getDocs(collection(db, "users"));

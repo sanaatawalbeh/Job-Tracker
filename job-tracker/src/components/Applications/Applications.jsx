@@ -1,3 +1,4 @@
+// src/components/User/ApplicationsTable.jsx
 import { useEffect, useState } from "react";
 import { auth, db } from "../../firebase";
 import {
@@ -26,50 +27,61 @@ import {
   InputLabel,
 } from "@mui/material";
 
+import { useDispatch, useSelector } from "react-redux";
+import { setApplications } from "../../redux/applicationsSlice";
+
 export default function ApplicationsTable() {
   const [user, setUser] = useState(null);
-  const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all"); // فلتر الحالة
+  const [filter, setFilter] = useState("all");
+
+  const dispatch = useDispatch();
+  const applications = useSelector((state) => state.applications.list);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (!currentUser) {
         setUser(null);
-        setApplications([]);
         setLoading(false);
         return;
       }
 
       setUser(currentUser);
 
-      try {
-        const q = query(
-          collection(db, "applications"),
-          where("uid", "==", currentUser.uid)
-        );
-        const snapshot = await getDocs(q);
-        const apps = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setApplications(apps);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
+      // Fetch from Firestore only if Redux state is empty
+      if (applications.length === 0) {
+        try {
+          const q = query(
+            collection(db, "applications"),
+            where("uid", "==", currentUser.uid)
+          );
+          const snapshot = await getDocs(q);
+          const apps = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          dispatch(setApplications(apps));
+        } catch (error) {
+          console.error(error);
+        }
       }
+
+      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [dispatch, applications.length]);
 
   const handleStatusChange = async (id, newStatus) => {
     try {
       const docRef = doc(db, "applications", id);
       await updateDoc(docRef, { status: newStatus });
-      setApplications((prev) =>
-        prev.map((app) => (app.id === id ? { ...app, status: newStatus } : app))
+      dispatch(
+        setApplications(
+          applications.map((app) =>
+            app.id === id ? { ...app, status: newStatus } : app
+          )
+        )
       );
     } catch (error) {
       console.error(error);
@@ -80,13 +92,13 @@ export default function ApplicationsTable() {
     try {
       const docRef = doc(db, "applications", id);
       await deleteDoc(docRef);
-      setApplications((prev) => prev.filter((app) => app.id !== id));
+      dispatch(setApplications(applications.filter((app) => app.id !== id)));
     } catch (error) {
       console.error(error);
     }
   };
 
-  // فلترة التطبيقات حسب الفلتر المختار
+  // Filter applications
   const filteredApplications =
     filter === "all"
       ? applications
