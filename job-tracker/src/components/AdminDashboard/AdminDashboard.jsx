@@ -1,7 +1,7 @@
-// src/components/Admin/AdminLayout.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { auth } from "../../firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import Swal from "sweetalert2";
 import {
   Box,
@@ -15,9 +15,17 @@ import {
 } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 
-
 export default function AdminLayout() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null); // 🔥 state لليوزر
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser); // بترجع الإيميل/الديسبلاي نيم
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleLogout = async () => {
     const result = await Swal.fire({
@@ -61,6 +69,7 @@ export default function AdminLayout() {
         >
           Admin Panel
         </Typography>
+
         {/* Admin Info */}
         <Box
           sx={{
@@ -73,21 +82,21 @@ export default function AdminLayout() {
         >
           <Avatar
             sx={{
-              bgcolor: "#e5e7eb", // رمادي فاتح
-              color: "#374151", // رمادي غامق للنص
+              bgcolor: "#e5e7eb",
+              color: "#374151",
               width: 48,
               height: 48,
               fontWeight: 600,
               fontSize: "18px",
             }}
           >
-            {auth.currentUser?.displayName
-              ? auth.currentUser.displayName.slice(0, 2).toUpperCase()
-              : auth.currentUser?.email?.slice(0, 2).toUpperCase()}
+            {user?.displayName
+              ? user.displayName.slice(0, 2).toUpperCase()
+              : user?.email?.slice(0, 2).toUpperCase()}
           </Avatar>
 
           <Typography fontWeight={600} fontSize="16px">
-            {auth.currentUser?.displayName || auth.currentUser?.email}
+            {user?.displayName || user?.email}
           </Typography>
         </Box>
 
