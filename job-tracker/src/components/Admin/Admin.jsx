@@ -30,9 +30,11 @@ export default function AdminDashboard() {
     const fetchApplications = async () => {
       try {
         const appsSnapshot = await getDocs(collection(db, "applications"));
-        const appsData = appsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const appsData = appsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-        // جلب كل المستخدمين لربط الـ uid بالإيميل
         const usersSnapshot = await getDocs(collection(db, "users"));
         const usersMap = {};
         usersSnapshot.docs.forEach((doc) => {
@@ -80,23 +82,45 @@ export default function AdminDashboard() {
   if (loading) return <Typography>Loading applications...</Typography>;
 
   return (
-    <TableContainer component={Paper} sx={{ mt: 3, p: 2 }}>
+    <TableContainer
+      component={Paper}
+      sx={{
+        mt: 3,
+        p: 2,
+        ml: { xs: 0, sm: 36.2 }, // مارجن من اليسار للابتعاد عن Sidebar
+        overflowX: "auto",
+      }}
+    >
       <Typography variant="h6" gutterBottom>
         All Applications
       </Typography>
       <Table>
         <TableHead>
-          <TableRow>
-            <TableCell>Company</TableCell>
-            <TableCell>Position</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>User Email</TableCell>
-            <TableCell>Actions</TableCell>
+          <TableRow sx={{ bgcolor: "#3b82f6" }}>
+            {" "}
+            {/* لون الخلفية أزرق */}
+            <TableCell sx={{ color: "#fff", fontWeight: 600 }}>
+              Company
+            </TableCell>
+            <TableCell sx={{ color: "#fff", fontWeight: 600 }}>
+              Position
+            </TableCell>
+            <TableCell sx={{ color: "#fff", fontWeight: 600 }}>
+              Status
+            </TableCell>
+            <TableCell sx={{ color: "#fff", fontWeight: 600 }}>
+              User Email
+            </TableCell>
+            <TableCell sx={{ color: "#fff", fontWeight: 600 }}>
+              Actions
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {applications.map((app) => (
-            <TableRow key={app.id}>
+            <TableRow key={app.id} hover>
+              {" "}
+              {/* hover يضيف تأثير عند المرور */}
               <TableCell>{app.company}</TableCell>
               <TableCell>{app.position}</TableCell>
               <TableCell>
