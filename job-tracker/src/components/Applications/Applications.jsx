@@ -5,10 +5,10 @@ import {
   collection,
   query,
   where,
-  getDocs,
   doc,
   updateDoc,
   deleteDoc,
+  onSnapshot,
 } from "firebase/firestore";
 import {
   TableContainer,
@@ -39,38 +39,38 @@ export default function ApplicationsTable() {
   const applications = useSelector((state) => state.applications.list);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+    let unsubscribeSnapshot = () => {};
+
+    const unsubscribeAuth = auth.onAuthStateChanged((currentUser) => {
       if (!currentUser) {
         setUser(null);
         setLoading(false);
         return;
       }
-
       setUser(currentUser);
 
-      // Fetch from Firestore only if Redux state is empty
-      if (applications.length === 0) {
-        try {
-          const q = query(
-            collection(db, "applications"),
-            where("uid", "==", currentUser.uid)
-          );
-          const snapshot = await getDocs(q);
-          const apps = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          dispatch(setApplications(apps));
-        } catch (error) {
-          console.error(error);
-        }
-      }
+      // Realtime listener
+      const q = query(
+        collection(db, "applications"),
+        where("uid", "==", currentUser.uid)
+      );
 
-      setLoading(false);
+      unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+        const apps = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        dispatch(setApplications(apps));
+        setLoading(false);
+      });
     });
 
-    return () => unsubscribe();
-  }, [dispatch, applications.length]);
+    // Clean up both listeners on unmount
+    return () => {
+      unsubscribeAuth();
+      unsubscribeSnapshot();
+    };
+  }, [dispatch]);
 
   const handleStatusChange = async (id, newStatus) => {
     try {
@@ -92,7 +92,7 @@ export default function ApplicationsTable() {
     try {
       const docRef = doc(db, "applications", id);
       await deleteDoc(docRef);
-      dispatch(setApplications(applications.filter((app) => app.id !== id)));
+      dispatch(applications.filter((app) => app.id !== id));
     } catch (error) {
       console.error(error);
     }
@@ -109,7 +109,16 @@ export default function ApplicationsTable() {
     return <Typography>Please log in to see your applications.</Typography>;
 
   return (
-    <TableContainer component={Paper} sx={{ mt: 3, p: 2 }}>
+    <TableContainer
+      component={Paper}
+      sx={{
+        mt: 3,
+        p: 2,
+        ml: { xs: 0, sm: 36.2 }, // margin-left لتباعد عن Sidebar
+        overflowX: "auto",
+      }}
+    >
+      {/* Header + Filter */}
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -135,11 +144,21 @@ export default function ApplicationsTable() {
 
       <Table>
         <TableHead>
-          <TableRow>
-            <TableCell>Company</TableCell>
-            <TableCell>Position</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Actions</TableCell>
+          <TableRow sx={{ bgcolor: "#3b82f6" }}>
+            {" "}
+            {/* لون الصف الأزرق */}
+            <TableCell sx={{ color: "#fff", fontWeight: 600 }}>
+              Company
+            </TableCell>
+            <TableCell sx={{ color: "#fff", fontWeight: 600 }}>
+              Position
+            </TableCell>
+            <TableCell sx={{ color: "#fff", fontWeight: 600 }}>
+              Status
+            </TableCell>
+            <TableCell sx={{ color: "#fff", fontWeight: 600 }}>
+              Actions
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
